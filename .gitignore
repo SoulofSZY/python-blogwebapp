@@ -8,5 +8,4 @@
 out
 gen
 *.sqlite3
-/requirements.txt
 /blog/migrations/0001_initial.py
