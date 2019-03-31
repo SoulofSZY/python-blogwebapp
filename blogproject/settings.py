@@ -24,7 +24,7 @@ SECRET_KEY = 'k_nx(dgre!@%v1jwagu!xc#xos3cp4k47hn_snfs8d-k9g$0el'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.steamedfish.site']
+ALLOWED_HOSTS = ['127.0.0.1', '39.104.66.251', 'localhost', '.steamedfish.site']
 
 # Application definition
 
