@@ -29,6 +29,9 @@ def index3(request):
 # 博客文章详情页
 def detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
+
+    # 阅读量 + 1
+    post.increase_pviews()
     # 对Markdown语法的扩展
     post.body = markdown.markdown(post.body, extensions=[
         'markdown.extensions.extra',  # 包含很多扩展

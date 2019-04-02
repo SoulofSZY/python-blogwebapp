@@ -2,6 +2,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils.html import strip_tags
+
+import markdown
 
 
 class Category(models.Model):
@@ -46,12 +49,29 @@ class Post(models.Model):
     # django.contrib.auth用于处理网站用户的注册、登录等流程，User 是 Django 为我们已经写好的用户模型
     author = models.ForeignKey(User)
 
+    # 粗略统计阅读量 即每次访问详情页阅读量+1
+    pviews = models.PositiveIntegerField(default=0)
+
+    def increase_pviews(self):
+        self.pviews += 1
+        self.save(update_fields=['pviews'])
+
     def __str__(self):
         return self.title
 
     # 用于生成访问url 是否可以换成property
     def get_absolute_url(self):
         return reverse('blog:detail', kwargs={'pk': self.pk})
+
+    # 重写save方法 截取正文的前54个字符作为摘要
+    def save(self, *args, **kwargs):
+        if not self.excerpt:
+            md = markdown.Markdown(extensions=[
+                'markdown.extensions.extra',
+                'markdown.extensions.codehilite'
+            ])
+            self.excerpt = strip_tags(md.convert(self.body)[:54])
+        super(Post, self).save(*args, **kwargs)
 
     # 在模型中指定排序
     class Meta:
