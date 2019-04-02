@@ -74,6 +74,8 @@ class IndexView(ListView):
     model = Post
     template_name = "blog/index.html"
     context_object_name = "post_list"
+    # 基于类的通用视图已经封装好了分页功能  具体实现 django.core.paginator.Paginator
+    paginate_by = 2
 
 
 class CategoryView(IndexView):
