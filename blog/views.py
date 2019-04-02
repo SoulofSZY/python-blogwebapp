@@ -77,6 +77,96 @@ class IndexView(ListView):
     # 基于类的通用视图已经封装好了分页功能  具体实现 django.core.paginator.Paginator
     paginate_by = 2
 
+    def get_context_data(self, **kwargs):
+        # 重写 获取contex的方法 目的：携带自定义分页信息
+        context = super(IndexView, self).get_context_data(**kwargs)
+
+        # 获取django paginator 分页信息
+        paginator = context.get('paginator')
+        page = context.get('page_obj')
+        is_paginated = context.get('is_paginated')
+
+        pagination_data = self.pagination_data(paginator, page, is_paginated)
+
+        context.update(pagination_data)
+
+        return context
+
+    # 由于django内置的分页 效果比较简单 这里字定义形如 1...2 3 [4] 5 6...10 这样的分页效果
+    def pagination_data(self, paginator, page, is_paginated):
+        if not is_paginated:
+            # 如果没有分页则返回{}
+            return {}
+        # 当前分页左边的页码号
+        left = []
+        # 当前分页右边的页码号
+        right = []
+        # 页码1 后是否需要显示省略号
+        left_has_more = False
+        # 最后页码前是否要显示省略号
+        right_has_more = False
+        # 是否要显示页码1 当left[] 不包含页码1时显示
+        first = False
+        # 是否显示最后页码 当right[] 不包含最后页码时显示
+        last = False
+
+        # 当前请求的页码号
+        page_number = page.number
+        # 分页后的总页数
+        total_pages = paginator.num_pages
+        # 整个分页的页码列表
+        page_range = list(paginator.page_range)
+
+        if page_number == 1:
+            # 如果当前为第一页，那么left不需要数据
+            right = page_range[page_number:page_number + 2]
+            # 如果right中最后的页码号比最后一页的页码号-1还小 则需要展示省略号
+            if right[-1] < total_pages - 1:
+                right_has_more = True
+            # 如果right中最后的页码号比最后一页的页码号小 则需要展示last
+            if right[-1] < total_pages:
+                last = True
+        elif page_number == total_pages:
+            # 尾页
+            left = page_range[(page_number - 3) if (page_number - 3) > 0 else 0:page_number - 1]
+            # 如果left[0] 比2还要大 则需要展示省略号
+            if left[0] > 2:
+                left_has_more = True
+            # 如果left[0] > 1 则需要展示第一页
+            if left[0] > 1:
+                first = True
+        else:
+            # 既不是第一页 也不是 尾页
+            # print(page_range)
+            # print(type(page_number))
+            # print(page_number)
+            left = page_range[(page_number - 3) if (page_number - 3) > 0 else 0: page_number - 1]
+            right = page_range[page_number:page_number + 2]
+
+            # 是否显示最后一页和最后一页前的省略号
+            if right[-1] < total_pages - 1:
+                right_has_more = True
+            if right[-1] < total_pages:
+                last = True
+
+            # 是否显示第一页和第一页后的省略号
+            print(left)
+            if left[0] > 2:
+                left_has_more = True
+            if left[0] > 1:
+                first = True
+
+        data = {
+            'left': left,
+            'right': right,
+            'left_has_more': left_has_more,
+            'right_has_more': right_has_more,
+            'first': first,
+            'last': last
+        }
+
+        return data
+
 
 class CategoryView(IndexView):
     # 覆写父类中的该方法 完成结果的过滤查询 父类默认查询实体所有
