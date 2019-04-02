@@ -70,6 +70,7 @@ class Post(models.Model):
                 'markdown.extensions.extra',
                 'markdown.extensions.codehilite'
             ])
+            # 不够完美 比如54个字符 最后是html标签的一部分 strip_tags 不会识别出来
             self.excerpt = strip_tags(md.convert(self.body)[:54])
         super(Post, self).save(*args, **kwargs)
 

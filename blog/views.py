@@ -63,3 +63,66 @@ def category(request, pk):
     # post_list = Post.objects.filter(category=cate).order_by('-created_time')
     post_list = Post.objects.filter(category=cate)
     return render(request, 'blog/index.html', context={'post_list': post_list})
+
+
+## 类视图的方式来完成请求处理 代码的进一步抽离 开发只需做基本的业务处理即可
+
+from django.views.generic import ListView, DetailView
+
+
+class IndexView(ListView):
+    model = Post
+    template_name = "blog/index.html"
+    context_object_name = "post_list"
+
+
+class CategoryView(IndexView):
+    # 覆写父类中的该方法 完成结果的过滤查询 父类默认查询实体所有
+    def get_queryset(self):
+        cate = get_object_or_404(Category, pk=self.kwargs.get('pk'))
+        return super(CategoryView, self).get_queryset().filter(category=cate)
+
+
+class ArchivesView(IndexView):
+
+    def get_queryset(self):
+        year = self.kwargs.get("year")
+        month = self.kwargs.get('month')
+        return super(ArchivesView, self).get_queryset().filter(created_time__year=year, created_time__month=month)
+
+
+# 使用Django 基于详情页的类模板
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/detail.html'
+    context_object_name = 'post'
+
+    def get(self, request, *args, **kwargs):
+        # 重写get方法的目的是针对 文章阅读量功能
+        response = super(PostDetailView, self).get(request, *args, **kwargs)
+
+        self.object.increase_pviews()
+
+        return response
+
+    def get_object(self, queryset=None):
+        # 重写该方法是为了对post.body进行渲染
+        post = super(PostDetailView, self).get_object(queryset=None)
+        post.body = markdown.markdown(post.body, extensions=[
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc'
+        ])
+
+        return post
+
+    def get_context_data(self, **kwargs):
+        # 重写该方法 是由于处理指定实体外 还需要传递其他数据到页面
+        context = super(PostDetailView, self).get_context_data(**kwargs)
+        form = CommentForm()
+        comment_list = self.object.comment_set.all()
+        context.update({
+            'form': form,
+            'comment_list': comment_list
+        })
+        return context
