@@ -3,8 +3,9 @@ from markdown.extensions.toc import TocExtension
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.utils.text import slugify
-
+from django.db.models import Q
 from comment.forms import CommentForm
+
 from .models import Post, Category, Tag
 
 
@@ -65,6 +66,21 @@ def category(request, pk):
     # post_list = Post.objects.filter(category=cate).order_by('-created_time')
     post_list = Post.objects.filter(category=cate)
     return render(request, 'blog/index.html', context={'post_list': post_list})
+
+
+def search(request):
+    q = request.GET.get("q")
+    error_msg = ''
+
+    if not q:
+        error_msg = '请输入关键字！'
+        return render(request, 'blog/index.html', {'error_msg': error_msg})
+
+    post_list = Post.objects.filter(Q(title__icontains=q) | Q(body__icontains=q))
+    return render(request, 'blog/index.html', {
+        'error_msg': error_msg,
+        'post_list': post_list,
+    })
 
 
 ## 类视图的方式来完成请求处理 代码的进一步抽离 开发只需做基本的业务处理即可
