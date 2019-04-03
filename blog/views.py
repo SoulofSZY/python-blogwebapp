@@ -206,11 +206,19 @@ class PostDetailView(DetailView):
     def get_object(self, queryset=None):
         # 重写该方法是为了对post.body进行渲染
         post = super(PostDetailView, self).get_object(queryset=None)
-        post.body = markdown.markdown(post.body, extensions=[
+        # post.body = markdown.markdown(post.body, extensions=[
+        #     'markdown.extensions.extra',
+        #     'markdown.extensions.codehilite',
+        #     'markdown.extensions.toc'
+        # ])
+        # 实现页面任意地方插入标题  或者在md文件中指定 [TOC] 标识 md渲染时会在标记处插入目录
+        md = markdown.Markdown(extensions=[
             'markdown.extensions.extra',
             'markdown.extensions.codehilite',
             'markdown.extensions.toc'
         ])
+        post.body = md.convert(post.body)
+        post.toc = md.toc
 
         return post
 
