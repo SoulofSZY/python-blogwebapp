@@ -16,6 +16,13 @@
         <div class="entry-content clearfix">
             {{ post.body |safe }}
         </div>
+        <div class="entry-content clearfix">
+            标签：{% for tag in post.tags.all %}
+            [#{{ tag.name }}]&nbsp
+        {% empty %}
+            暂无
+        {% endfor %}
+        </div>
     </article>
     <section class="comment-area" id="comment-area">
         <hr>
