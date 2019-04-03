@@ -3,7 +3,7 @@
 # Filename:XX.py
 from django.db.models.aggregates import Count
 from django import template
-from ..models import Post, Category
+from ..models import Post, Category, Tag
 
 register = template.Library()
 
@@ -25,3 +25,9 @@ def archives():
 def get_categories():
     # 获取分类时 统计分类下的文章数 并过滤文章数为0的分类 return Category.objects.all()
     return Category.objects.annotate(num_posts=Count('post')).filter(num_posts__gt=0)
+
+
+# 文章标签获取
+@register.simple_tag
+def get_tags():
+    return Tag.objects.annotate(num_posts=Count('post')).filter(num_posts__gt=0)
