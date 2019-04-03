@@ -1,6 +1,8 @@
 import markdown
+from markdown.extensions.toc import TocExtension
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
+from django.utils.text import slugify
 
 from comment.forms import CommentForm
 from .models import Post, Category, Tag
@@ -215,7 +217,8 @@ class PostDetailView(DetailView):
         md = markdown.Markdown(extensions=[
             'markdown.extensions.extra',
             'markdown.extensions.codehilite',
-            'markdown.extensions.toc'
+            # 'markdown.extensions.toc'
+            TocExtension(slugify=slugify),
         ])
         post.body = md.convert(post.body)
         post.toc = md.toc
