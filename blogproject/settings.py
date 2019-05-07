@@ -36,8 +36,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',  # 注册blog 应用
-    'comment'  # 注册评论应用
+    'comment',  # 注册评论应用
+    'haystack',  # 搜索引擎
 ]
+
+# 搜索引擎相关配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'blog.whoosh_cn_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    },
+}
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 3
+# 索引建立策略 修改即更新 blog文章更新频率不高
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -10,3 +10,7 @@ gen
 *.sqlite3
 /readme.txt
 /mytest.py
+/whoosh_index/MAIN_WRITELOCK
+/whoosh_index/_MAIN_1.toc
+/whoosh_index/MAIN_rp59g7n4bwp5u3ww.seg
+/whoosh_index/
